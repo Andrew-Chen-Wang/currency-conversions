@@ -3,7 +3,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { chromium } from "playwright-extra";
 import { Page } from "@playwright/test";
-import StealthPlugin from "puppeteer-extra-plugin-stealth";
+import { stealth } from "playwright-extra";
 import {
   COMMON_CURRENCIES,
   type Currency,
@@ -11,7 +11,7 @@ import {
 } from "./types.js";
 
 // Add stealth plugin
-chromium.use(StealthPlugin());
+chromium.use(stealth());
 
 async function selectCurrency(
   page: Page,
