@@ -1,6 +1,7 @@
 import { chromium } from "@playwright/test";
 import { writeFileSync } from "fs";
 import path from "path";
+import { fileURLToPath } from "url";
 import {
   COMMON_CURRENCIES,
   type Currency,
