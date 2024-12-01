@@ -7,10 +7,10 @@ import {
   type Currency,
   type CurrencyRates,
 } from "./types.js";
-import { stealth } from "puppeteer-extra-plugin-stealth";
+import StealthPlugin from "puppeteer-extra-plugin-stealth";
 
 // Add stealth plugin
-chromium.use(stealth());
+chromium.use(StealthPlugin());
 
 async function extractRateFromPage(page: any): Promise<number | null> {
   try {
