@@ -7,14 +7,22 @@
     "enabled": true,
     "rules": {
       "recommended": true
-    }
+    },
+    "ignore": [
+      "./patchright/**/*",
+      "./node_modules/**/*"
+    ]
   },
   "formatter": {
     "enabled": true,
     "formatWithErrors": false,
     "indentStyle": "space",
     "indentWidth": 2,
-    "lineWidth": 80
+    "lineWidth": 80,
+    "ignore": [
+      "./patchright/**/*",
+      "./node_modules/**/*"
+    ]
   },
   "javascript": {
     "formatter": {
