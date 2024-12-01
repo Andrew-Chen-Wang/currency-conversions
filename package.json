@@ -23,6 +23,7 @@
     "@types/node": "^22.10.1",
     "husky": "^9.1.7",
     "lint-staged": "^15.2.10",
+    "puppeteer-extra-plugin-stealth": "^2.11.2",
     "ts-node": "^10.9.2",
     "typescript": "^5.7.2"
   },
@@ -32,10 +33,12 @@
   },
   "dependencies": {
     "patchright": "link:patchright",
-    "playwright-extra": "^4.3.6",
-    "puppeteer-extra-plugin-stealth": "^2.11.2"
+    "playwright-extra": "^4.3.6"
   },
   "lint-staged": {
-    "*.{js,ts}": ["biome check --apply", "biome format --write"]
+    "*.{js,ts}": [
+      "biome check --apply",
+      "biome format --write"
+    ]
   }
 }
