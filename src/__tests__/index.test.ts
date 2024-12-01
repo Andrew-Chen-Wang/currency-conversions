@@ -24,7 +24,9 @@ test.describe("Currency Conversion Tests", () => {
         "--disable-dev-shm-usage",
       ],
     });
+  });
 
+  test.beforeEach(async () => {
     context = await browser.newContext({
       userAgent:
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
@@ -32,18 +34,22 @@ test.describe("Currency Conversion Tests", () => {
     });
 
     page = await context.newPage();
+
+    // Navigate with shorter timeout and wait for load instead of networkidle
+    await page.goto("https://www.oanda.com/currency-converter/en/", {
+      waitUntil: "load",
+      timeout: 25000,
+    });
+
+    // Additional wait for currency dropdowns to be ready
+    await page.waitForSelector('select[data-testid="from-currency-select"]', { timeout: 25000 });
   });
 
-  test.beforeEach(async () => {
-    // Navigate with extended timeout and wait for network idle
-    await page.goto("https://www.oanda.com/currency-converter/en/", {
-      waitUntil: "networkidle",
-      timeout: 90000,
-    });
+  test.afterEach(async () => {
+    await context?.close();
   });
 
   test.afterAll(async () => {
-    await context?.close();
     await browser?.close();
   });
 
