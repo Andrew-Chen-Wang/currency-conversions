@@ -3,3 +3,11 @@ dist/
 *.log
 .env
 patchright/
+test-results/
+playwright-report/
+*.png
+package-lock.json
+coverage/
+.DS_Store
+*.tsbuildinfo
+dist/
