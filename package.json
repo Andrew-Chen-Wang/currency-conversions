@@ -36,9 +36,6 @@
     "patchright": "link:patchright"
   },
   "lint-staged": {
-    "*.{js,ts}": [
-      "biome check --apply",
-      "biome format --write"
-    ]
+    "*.{js,ts}": ["biome check --apply", "biome format --write"]
   }
 }
