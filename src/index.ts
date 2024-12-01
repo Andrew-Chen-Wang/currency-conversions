@@ -1,4 +1,4 @@
-import { chromium } from "@playwright/test";
+import { chromium } from "playwright-extra";
 import { writeFileSync } from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -7,17 +7,20 @@ import {
   type Currency,
   type CurrencyRates,
 } from "./types.js";
+import { stealth } from "puppeteer-extra-plugin-stealth";
+
+// Add stealth plugin
+chromium.use(stealth());
 
 async function extractRateFromPage(page: any): Promise<number | null> {
   try {
-    // Wait for the rate to be visible
-    await page.waitForSelector('[data-testid="conversion-result"]', { timeout: 10000 });
-    const rateText = await page.locator('[data-testid="conversion-result"]').textContent();
+    // Wait for the rate input field to be visible and get its value
+    const rateInput = await page.locator('input[name="numberformat"]').nth(1);
+    await rateInput.waitFor({ state: 'visible', timeout: 30000 });
+    const rateText = await rateInput.inputValue();
 
-    // Extract the numeric rate from the text
-    const match = rateText.match(/1.+?=\s*([\d,.]+)/);
-    if (match) {
-      return parseFloat(match[1].replace(/,/g, ""));
+    if (rateText) {
+      return parseFloat(rateText.replace(/,/g, ""));
     }
     return null;
   } catch (error) {
@@ -47,8 +50,14 @@ export async function fetchCurrencyRate(
 
 export async function getAllCurrencyRates(): Promise<CurrencyRates> {
   const rates: CurrencyRates = {};
-  const browser = await chromium.launch();
-  const page = await browser.newPage();
+  const browser = await chromium.launch({
+    headless: true,
+    args: ['--no-sandbox', '--disable-setuid-sandbox']
+  });
+  const context = await browser.newContext({
+    userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+  });
+  const page = await context.newPage();
 
   try {
     for (const fromCurrency of COMMON_CURRENCIES) {
@@ -58,18 +67,24 @@ export async function getAllCurrencyRates(): Promise<CurrencyRates> {
         const key = `${fromCurrency} / ${toCurrency}`;
         console.log(`Fetching rate for ${key}...`);
 
-        await page.goto(
-          `https://www.oanda.com/currency-converter/en/?from=${fromCurrency}&to=${toCurrency}&amount=1`,
-          { waitUntil: "networkidle" }
-        );
+        try {
+          await page.goto(
+            `https://www.oanda.com/currency-converter/en/?from=${fromCurrency}&to=${toCurrency}&amount=1`,
+            { waitUntil: "networkidle", timeout: 60000 }
+          );
 
-        const rate = await extractRateFromPage(page);
-        if (rate !== null) {
-          rates[key] = rate;
+          const rate = await extractRateFromPage(page);
+          if (rate !== null) {
+            rates[key] = rate;
+            console.log(`Successfully fetched rate for ${key}: ${rate}`);
+          }
+
+          // Increased delay to avoid rate limiting
+          await page.waitForTimeout(3000);
+        } catch (error) {
+          console.error(`Failed to fetch rate for ${key}:`, error);
+          continue;
         }
-
-        // Add a small delay to avoid rate limiting
-        await page.waitForTimeout(1000);
       }
     }
   } finally {
