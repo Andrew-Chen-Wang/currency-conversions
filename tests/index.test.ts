@@ -1,10 +1,10 @@
-import { test, expect, chromium, Page } from '@playwright/test';
-import { getAllCurrencyRates, fetchCurrencyRate } from '../index.js';
-import { COMMON_CURRENCIES } from '../types.js';
-import fs from 'fs';
-import path from 'path';
+import fs from "node:fs";
+import path from "node:path";
+import { type Page, chromium, expect, test } from "@playwright/test";
+import { fetchCurrencyRate, getAllCurrencyRates } from "../src/index.js";
+import { COMMON_CURRENCIES } from "../src/types.js";
 
-test.describe('Currency Conversion Tests', () => {
+test.describe("Currency Conversion Tests", () => {
   let page: Page;
 
   test.beforeAll(async () => {
@@ -16,14 +16,14 @@ test.describe('Currency Conversion Tests', () => {
     await page.close();
   });
 
-  test('fetchCurrencyRate returns valid rate for EUR/USD', async () => {
-    const rate = await fetchCurrencyRate('EUR', 'USD');
+  test("fetchCurrencyRate returns valid rate for EUR/USD", async () => {
+    const rate = await fetchCurrencyRate("EUR", "USD");
     expect(rate).not.toBeNull();
-    expect(typeof rate).toBe('number');
+    expect(typeof rate).toBe("number");
     expect(rate).toBeGreaterThan(0);
   });
 
-  test('getAllCurrencyRates generates valid JSON file', async () => {
+  test("getAllCurrencyRates generates valid JSON file", async () => {
     const rates = await getAllCurrencyRates();
 
     // Check if rates object is not empty
@@ -31,22 +31,23 @@ test.describe('Currency Conversion Tests', () => {
 
     // Check if rates are valid numbers
     for (const [pair, rate] of Object.entries(rates)) {
-      expect(typeof rate).toBe('number');
+      expect(typeof rate).toBe("number");
       expect(rate).toBeGreaterThan(0);
     }
 
     // Check if JSON file was created
-    const filePath = path.join(process.cwd(), 'currency-rates.json');
+    const filePath = path.join(process.cwd(), "currency-rates.json");
     expect(fs.existsSync(filePath)).toBe(true);
 
     // Verify JSON content
-    const fileContent = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+    const fileContent = JSON.parse(fs.readFileSync(filePath, "utf-8"));
     expect(fileContent).toEqual(rates);
   });
 
-  test('handles all COMMON_CURRENCIES pairs', async () => {
+  test("handles all COMMON_CURRENCIES pairs", async () => {
     const rates = await getAllCurrencyRates();
-    const expectedPairCount = COMMON_CURRENCIES.length * (COMMON_CURRENCIES.length - 1);
+    const expectedPairCount =
+      COMMON_CURRENCIES.length * (COMMON_CURRENCIES.length - 1);
     const actualPairCount = Object.keys(rates).length;
 
     expect(actualPairCount).toBe(expectedPairCount);

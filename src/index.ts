@@ -1,37 +1,41 @@
+import { writeFileSync } from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { chromium } from "playwright-extra";
-import { writeFileSync } from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
+import { Page } from "@playwright/test";
 import {
   COMMON_CURRENCIES,
   type Currency,
   type CurrencyRates,
 } from "./types.js";
-import StealthPlugin from "puppeteer-extra-plugin-stealth";
 
 // Add stealth plugin
 chromium.use(StealthPlugin());
 
-async function selectCurrency(page: any, fromOrTo: 'from' | 'to', currency: Currency): Promise<void> {
+async function selectCurrency(
+  page: Page,
+  fromOrTo: "from" | "to",
+  currency: Currency
+): Promise<void> {
   // Click the dropdown to open it
   await page.click(`#${fromOrTo}-button`);
   // Wait for the dropdown menu to be visible
-  await page.waitForSelector(`#${fromOrTo}-menu`, { state: 'visible' });
+  await page.waitForSelector(`#${fromOrTo}-menu`, { state: "visible" });
   // Click the currency option
   await page.click(`[data-value="${currency}"]`);
   // Wait for the rate to update
   await page.waitForTimeout(1000);
 }
 
-async function extractRateFromPage(page: any): Promise<number | null> {
+async function extractRateFromPage(page: Page): Promise<number | null> {
   try {
     // Wait for the rate input field to be visible and get its value
     const rateInput = await page.locator('input[name="numberformat"]').nth(1);
-    await rateInput.waitFor({ state: 'visible', timeout: 30000 });
+    await rateInput.waitFor({ state: "visible", timeout: 30000 });
     const rateText = await rateInput.inputValue();
 
     if (rateText) {
-      return parseFloat(rateText.replace(/,/g, ""));
+      return Number.parseFloat(rateText.replace(/,/g, ""));
     }
     return null;
   } catch (error) {
@@ -42,21 +46,21 @@ async function extractRateFromPage(page: any): Promise<number | null> {
 
 export async function fetchCurrencyRate(
   fromCurrency: Currency,
-  toCurrency: Currency,
+  toCurrency: Currency
 ): Promise<number | null> {
   const browser = await chromium.launch();
   const page = await browser.newPage();
 
   try {
     // Load the initial page
-    await page.goto('https://www.oanda.com/currency-converter/en/', {
+    await page.goto("https://www.oanda.com/currency-converter/en/", {
       waitUntil: "networkidle",
-      timeout: 60000
+      timeout: 60000,
     });
 
     // Select currencies using dropdowns
-    await selectCurrency(page, 'from', fromCurrency);
-    await selectCurrency(page, 'to', toCurrency);
+    await selectCurrency(page, "from", fromCurrency);
+    await selectCurrency(page, "to", toCurrency);
 
     return await extractRateFromPage(page);
   } finally {
@@ -68,18 +72,19 @@ export async function getAllCurrencyRates(): Promise<CurrencyRates> {
   const rates: CurrencyRates = {};
   const browser = await chromium.launch({
     headless: true,
-    args: ['--no-sandbox', '--disable-setuid-sandbox']
+    args: ["--no-sandbox", "--disable-setuid-sandbox"],
   });
   const context = await browser.newContext({
-    userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+    userAgent:
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
   });
   const page = await context.newPage();
 
   try {
     // Load the page once
-    await page.goto('https://www.oanda.com/currency-converter/en/', {
+    await page.goto("https://www.oanda.com/currency-converter/en/", {
       waitUntil: "networkidle",
-      timeout: 60000
+      timeout: 60000,
     });
 
     for (const fromCurrency of COMMON_CURRENCIES) {
@@ -91,8 +96,8 @@ export async function getAllCurrencyRates(): Promise<CurrencyRates> {
 
         try {
           // Use dropdowns to select currencies
-          await selectCurrency(page, 'from', fromCurrency);
-          await selectCurrency(page, 'to', toCurrency);
+          await selectCurrency(page, "from", fromCurrency);
+          await selectCurrency(page, "to", toCurrency);
 
           const rate = await extractRateFromPage(page);
           if (rate !== null) {
@@ -104,7 +109,6 @@ export async function getAllCurrencyRates(): Promise<CurrencyRates> {
           await page.waitForTimeout(1000);
         } catch (error) {
           console.error(`Failed to fetch rate for ${key}:`, error);
-          continue;
         }
       }
     }
