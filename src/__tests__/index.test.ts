@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 import type { Browser, BrowserContext, Page } from "@playwright/test";
 import { chromium } from "playwright";
 import { addExtra } from "playwright-extra";
-import { StealthPlugin } from "puppeteer-extra-stealth";
+import StealthPlugin from "puppeteer-extra-plugin-stealth";
 import { fetchCurrencyRate, getAllCurrencyRates } from "../index.js";
 
 test.describe("Currency Conversion Tests", () => {
