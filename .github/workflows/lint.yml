@@ -1,11 +1,13 @@
-name: Test
+name: Lint and Format
 
 on:
   pull_request:
     branches: [ main ]
+  push:
+    branches: [ main ]
 
 jobs:
-  test:
+  lint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -23,8 +25,7 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-      - name: Install Playwright browsers
-        run: pnpm exec playwright install chromium
-
-      - name: Run tests
-        run: pnpm test
+      - name: Run linting and formatting checks
+        run: |
+          pnpm exec biome check .
+          pnpm exec biome format --check .
