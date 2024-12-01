@@ -30,9 +30,9 @@ importers:
       playwright-extra:
         specifier: ^4.3.6
         version: 4.3.6(playwright-core@1.49.0)(playwright@1.49.0)
-      playwright-extra-plugin-stealth:
-        specifier: ^0.0.1
-        version: 0.0.1
+      puppeteer-extra-stealth:
+        specifier: 0.0.1-security
+        version: 0.0.1-security
       ts-node:
         specifier: ^10.9.2
         version: 10.9.2(@types/node@22.10.1)(typescript@5.7.2)
@@ -327,9 +327,6 @@ packages:
     engines: {node: '>=18'}
     hasBin: true
 
-  playwright-extra-plugin-stealth@0.0.1:
-    resolution: {integrity: sha512-eI0Ujf4MXbcupzlVEXaaOnb+Exjt1sFi7t/3KxIA5pVww+WRAXRWdhqTz0glX62jJq2YM8fLu+GyvULpjTpZrw==}
-
   playwright-extra@4.3.6:
     resolution: {integrity: sha512-q2rVtcE8V8K3vPVF1zny4pvwZveHLH8KBuVU2MoE3Jw4OKVoBWsHI9CH9zPydovHHOCDxjGN2Vg+2m644q3ijA==}
     engines: {node: '>=12'}
@@ -346,6 +343,9 @@ packages:
     resolution: {integrity: sha512-eKpmys0UFDnfNb3vfsf8Vx2LEOtflgRebl0Im2eQQnYMA4Aqd+Zw8bEOB+7ZKvN76901mRnqdsiOGKxzVTbi7A==}
     engines: {node: '>=18'}
     hasBin: true
+
+  puppeteer-extra-stealth@0.0.1-security:
+    resolution: {integrity: sha512-DjMaT9iTfoRStZtt6DGsQLxLLhZaVYk0/6VUx5X16vZ+iDlWq4d0Hx9nWmHmZfz1HDv5eZXvGjaC+HzpsInmXw==}
 
   restore-cursor@5.1.0:
     resolution: {integrity: sha512-oMA2dcrw6u0YfxJQXm342bFKX/E4sG9rbTzO9ptUcR/e8A33cHuvStiYOwH7fszkZlZ1z/ta9AAoPk2F4qIOHA==}
@@ -668,8 +668,6 @@ snapshots:
 
   playwright-core@1.49.0: {}
 
-  playwright-extra-plugin-stealth@0.0.1: {}
-
   playwright-extra@4.3.6(playwright-core@1.49.0)(playwright@1.49.0):
     dependencies:
       debug: 4.3.7
@@ -684,6 +682,8 @@ snapshots:
       playwright-core: 1.49.0
     optionalDependencies:
       fsevents: 2.3.2
+
+  puppeteer-extra-stealth@0.0.1-security: {}
 
   restore-cursor@5.1.0:
     dependencies:

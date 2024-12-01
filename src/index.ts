@@ -2,16 +2,17 @@ import { writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import type { Page } from "@playwright/test";
-import { chromium } from "playwright-extra";
-import StealthPlugin from "playwright-extra-plugin-stealth";
+import { chromium } from "playwright";
+import { addExtra } from "playwright-extra";
+import StealthPlugin from "puppeteer-extra-stealth";
 import {
   COMMON_CURRENCIES,
   type Currency,
   type CurrencyRates,
 } from "./types.js";
 
-// Add stealth plugin
-chromium.use(StealthPlugin());
+// Add stealth plugin and launch browser
+const browser = addExtra(chromium).use(StealthPlugin());
 
 async function selectCurrency(
   page: Page,
@@ -49,8 +50,8 @@ export async function fetchCurrencyRate(
   fromCurrency: Currency,
   toCurrency: Currency
 ): Promise<number | null> {
-  const browser = await chromium.launch();
-  const page = await browser.newPage();
+  const browserInstance = await browser.launch();
+  const page = await browserInstance.newPage();
 
   try {
     // Load the initial page
@@ -65,17 +66,17 @@ export async function fetchCurrencyRate(
 
     return await extractRateFromPage(page);
   } finally {
-    await browser.close();
+    await browserInstance.close();
   }
 }
 
 export async function getAllCurrencyRates(): Promise<CurrencyRates> {
   const rates: CurrencyRates = {};
-  const browser = await chromium.launch({
+  const browserInstance = await browser.launch({
     headless: true,
     args: ["--no-sandbox", "--disable-setuid-sandbox"],
   });
-  const context = await browser.newContext({
+  const context = await browserInstance.newContext({
     userAgent:
       "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
   });
@@ -114,7 +115,7 @@ export async function getAllCurrencyRates(): Promise<CurrencyRates> {
       }
     }
   } finally {
-    await browser.close();
+    await browserInstance.close();
   }
 
   // Save rates to JSON file

@@ -24,7 +24,7 @@
     "husky": "^9.1.7",
     "lint-staged": "^15.2.10",
     "playwright-extra": "^4.3.6",
-    "playwright-extra-plugin-stealth": "^0.0.1",
+    "puppeteer-extra-stealth": "0.0.1-security",
     "ts-node": "^10.9.2",
     "typescript": "^5.7.2"
   },
@@ -36,6 +36,9 @@
     "patchright": "link:patchright"
   },
   "lint-staged": {
-    "*.{js,ts}": ["biome check --apply", "biome format --write"]
+    "*.{js,ts}": [
+      "biome check --apply",
+      "biome format --write"
+    ]
   }
 }
