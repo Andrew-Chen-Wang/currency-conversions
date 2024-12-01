@@ -3,7 +3,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { chromium } from "playwright-extra";
 import { Page } from "@playwright/test";
-import { stealth } from "playwright-extra";
+import stealth from "playwright-extra";
 import {
   COMMON_CURRENCIES,
   type Currency,
