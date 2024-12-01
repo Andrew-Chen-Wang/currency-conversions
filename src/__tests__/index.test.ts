@@ -42,7 +42,9 @@ test.describe("Currency Conversion Tests", () => {
     });
 
     // Additional wait for currency dropdowns to be ready
-    await page.waitForSelector('select[data-testid="from-currency-select"]', { timeout: 25000 });
+    await page.waitForSelector('select[data-testid="from-currency-select"]', {
+      timeout: 25000,
+    });
   });
 
   test.afterEach(async () => {
