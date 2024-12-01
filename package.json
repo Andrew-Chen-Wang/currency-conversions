@@ -11,7 +11,8 @@
     "test": "playwright test",
     "format": "biome format --write .",
     "lint": "biome lint .",
-    "check": "biome check --apply ."
+    "check": "biome check --apply .",
+    "prepare": "husky install"
   },
   "keywords": "currency,conversion,exchange-rate,oanda,typescript",
   "author": "",
@@ -20,6 +21,8 @@
     "@biomejs/biome": "^1.9.4",
     "@playwright/test": "^1.49.0",
     "@types/node": "^22.10.1",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.2.10",
     "ts-node": "^10.9.2",
     "typescript": "^5.7.2"
   },
@@ -31,5 +34,11 @@
     "patchright": "link:patchright",
     "playwright-extra": "^4.3.6",
     "puppeteer-extra-plugin-stealth": "^2.11.2"
+  },
+  "lint-staged": {
+    "*.{js,ts}": [
+      "biome check --apply",
+      "biome format --write"
+    ]
   }
 }
