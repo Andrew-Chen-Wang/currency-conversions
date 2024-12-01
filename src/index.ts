@@ -12,6 +12,17 @@ import StealthPlugin from "puppeteer-extra-plugin-stealth";
 // Add stealth plugin
 chromium.use(StealthPlugin());
 
+async function selectCurrency(page: any, fromOrTo: 'from' | 'to', currency: Currency): Promise<void> {
+  // Click the dropdown to open it
+  await page.click(`#${fromOrTo}-button`);
+  // Wait for the dropdown menu to be visible
+  await page.waitForSelector(`#${fromOrTo}-menu`, { state: 'visible' });
+  // Click the currency option
+  await page.click(`[data-value="${currency}"]`);
+  // Wait for the rate to update
+  await page.waitForTimeout(1000);
+}
+
 async function extractRateFromPage(page: any): Promise<number | null> {
   try {
     // Wait for the rate input field to be visible and get its value
@@ -37,10 +48,15 @@ export async function fetchCurrencyRate(
   const page = await browser.newPage();
 
   try {
-    await page.goto(
-      `https://www.oanda.com/currency-converter/en/?from=${fromCurrency}&to=${toCurrency}&amount=1`,
-      { waitUntil: "networkidle" }
-    );
+    // Load the initial page
+    await page.goto('https://www.oanda.com/currency-converter/en/', {
+      waitUntil: "networkidle",
+      timeout: 60000
+    });
+
+    // Select currencies using dropdowns
+    await selectCurrency(page, 'from', fromCurrency);
+    await selectCurrency(page, 'to', toCurrency);
 
     return await extractRateFromPage(page);
   } finally {
@@ -60,6 +76,12 @@ export async function getAllCurrencyRates(): Promise<CurrencyRates> {
   const page = await context.newPage();
 
   try {
+    // Load the page once
+    await page.goto('https://www.oanda.com/currency-converter/en/', {
+      waitUntil: "networkidle",
+      timeout: 60000
+    });
+
     for (const fromCurrency of COMMON_CURRENCIES) {
       for (const toCurrency of COMMON_CURRENCIES) {
         if (fromCurrency === toCurrency) continue;
@@ -68,10 +90,9 @@ export async function getAllCurrencyRates(): Promise<CurrencyRates> {
         console.log(`Fetching rate for ${key}...`);
 
         try {
-          await page.goto(
-            `https://www.oanda.com/currency-converter/en/?from=${fromCurrency}&to=${toCurrency}&amount=1`,
-            { waitUntil: "networkidle", timeout: 60000 }
-          );
+          // Use dropdowns to select currencies
+          await selectCurrency(page, 'from', fromCurrency);
+          await selectCurrency(page, 'to', toCurrency);
 
           const rate = await extractRateFromPage(page);
           if (rate !== null) {
@@ -79,8 +100,8 @@ export async function getAllCurrencyRates(): Promise<CurrencyRates> {
             console.log(`Successfully fetched rate for ${key}: ${rate}`);
           }
 
-          // Increased delay to avoid rate limiting
-          await page.waitForTimeout(3000);
+          // Small delay between currency switches
+          await page.waitForTimeout(1000);
         } catch (error) {
           console.error(`Failed to fetch rate for ${key}:`, error);
           continue;
