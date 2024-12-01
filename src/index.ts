@@ -1,9 +1,9 @@
 import { writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import type { Page } from "@playwright/test";
 import { chromium } from "playwright-extra";
-import { Page } from "@playwright/test";
-import stealth from "playwright-extra";
+import StealthPlugin from "playwright-extra-plugin-stealth";
 import {
   COMMON_CURRENCIES,
   type Currency,
@@ -11,7 +11,7 @@ import {
 } from "./types.js";
 
 // Add stealth plugin
-chromium.use(stealth());
+chromium.use(StealthPlugin());
 
 async function selectCurrency(
   page: Page,
