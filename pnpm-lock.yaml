@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       patchright:
-        specifier: link:patchright
-        version: link:patchright
+        specifier: ^1.0.0
+        version: 1.49.0
     devDependencies:
       '@biomejs/biome':
         specifier: ^1.9.4
@@ -307,6 +307,16 @@ packages:
   onetime@7.0.0:
     resolution: {integrity: sha512-VXJjc87FScF88uafS3JllDgvAm+c/Slfz06lorj2uAY34rlUu0Nt+v8wreiImcrgAjjIHp1rXpTDlLOGw29WwQ==}
     engines: {node: '>=18'}
+
+  patchright-core@1.49.0:
+    resolution: {integrity: sha512-n335lOBMq7bk/zZyrLQ05r0VmFDTc2csz/fy0SjTRA87Bl+Mjc38FT+uvRsXZPs++L8d4zp8p44y2ZX+MuEI3g==}
+    engines: {node: '>=18'}
+    hasBin: true
+
+  patchright@1.49.0:
+    resolution: {integrity: sha512-GIs4X1bu6wbA6OaSGCZaN3NSG0QKsZZHsjyhZM/8NZ3lSw76NUZrxcTeiHmHzTEzOst8liIeu7GdIRvfhvQ3pw==}
+    engines: {node: '>=18'}
+    hasBin: true
 
   path-key@3.1.1:
     resolution: {integrity: sha512-ojmeN0qd+y0jszEtoY48r0Peq5dwMEkIlCOu6Q5f41lfkswXuKtYrhgoTpLnyIcHm24Uhqx+5Tqm2InSwLhE6Q==}
@@ -660,6 +670,14 @@ snapshots:
   onetime@7.0.0:
     dependencies:
       mimic-function: 5.0.1
+
+  patchright-core@1.49.0: {}
+
+  patchright@1.49.0:
+    dependencies:
+      patchright-core: 1.49.0
+    optionalDependencies:
+      fsevents: 2.3.2
 
   path-key@3.1.1: {}
 
