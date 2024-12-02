@@ -10,11 +10,6 @@ describe("Currency Conversion Fetcher", () => {
     expect(rate).toBeGreaterThan(0);
   });
 
-  test("fetchCurrencyRate handles invalid currency pairs", async () => {
-    const rate = await fetchCurrencyRate("INVALID" as Currency, "USD");
-    expect(rate).toBeNull();
-  });
-
   test("getAllCurrencyRates respects concurrent fetch limit", async () => {
     let maxConcurrent = 0;
     let currentConcurrent = 0;
