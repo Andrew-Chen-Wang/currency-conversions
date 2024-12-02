@@ -11,3 +11,4 @@ coverage/
 .DS_Store
 *.tsbuildinfo
 dist/
+currency-rates.json
