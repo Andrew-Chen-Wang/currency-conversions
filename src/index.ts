@@ -7,7 +7,7 @@ import {
   type CurrencyRates,
 } from "./types.js";
 
-export async function fetchCurrencyRate(
+async function fetchCurrencyRate(
   fromCurrency: Currency,
   toCurrency: Currency
 ): Promise<number | null> {
@@ -43,7 +43,7 @@ export async function fetchCurrencyRate(
   }
 }
 
-export async function getAllCurrencyRates(): Promise<CurrencyRates> {
+async function getAllCurrencyRates(): Promise<CurrencyRates> {
   const rates: CurrencyRates = {};
 
   for (const fromCurrency of COMMON_CURRENCIES) {
