@@ -33,7 +33,7 @@
     "url": "https://github.com/Andrew-Chen-Wang/currency-conversions.git"
   },
   "dependencies": {
-    "axios": "^1.6.2"
+    "axios": "^1.7.8"
   },
   "lint-staged": {
     "*.{js,ts}": "biome check --apply"
