@@ -1,45 +1,66 @@
-import { test, expect } from '@playwright/test';
+import { jest } from '@jest/globals';
+import axios from 'axios';
 import { fetchCurrencyRate, getAllCurrencyRates } from "../index.js";
 
-test.describe("Currency Conversion Tests", () => {
-  test.beforeEach(async ({ page }) => {
-    // Navigate with shorter timeout and wait for load instead of networkidle
-    await page.goto("https://www.oanda.com/currency-converter/en/", {
-      waitUntil: "load",
-      timeout: 25000,
-    });
+// Mock axios
+jest.mock('axios');
+const mockedAxios = axios as jest.Mocked<typeof axios>;
 
-    // Additional wait for currency dropdowns to be ready
-    await page.waitForSelector('select[data-testid="from-currency-select"]', {
-      timeout: 25000,
-    });
+describe("Currency Conversion Tests", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
   });
 
-  test("fetchCurrencyRate returns a valid number for EUR to USD", async ({ page }) => {
-    const rate = await fetchCurrencyRate("EUR", "USD", page);
+  test("fetchCurrencyRate returns a valid number for EUR to USD", async () => {
+    // Mock successful API response
+    mockedAxios.get.mockResolvedValueOnce({
+      data: [
+        { close: 1.0576 }
+      ]
+    });
+
+    const rate = await fetchCurrencyRate("EUR", "USD");
     expect(rate).not.toBeNull();
     expect(typeof rate).toBe("number");
-    expect(rate).toBeGreaterThan(0);
+    expect(rate).toBe(1.0576);
+
+    // Verify API was called with correct parameters
+    expect(mockedAxios.get).toHaveBeenCalledWith(
+      "https://fxds-public-exchange-rates-api.oanda.com/cc-api/currencies",
+      expect.objectContaining({
+        params: expect.objectContaining({
+          base: "EUR",
+          quote: "USD",
+          data_type: "chart"
+        })
+      })
+    );
   });
 
-  test("getAllCurrencyRates returns rates for all currency pairs", async ({ page }) => {
-    const rates = await getAllCurrencyRates(page);
+  test("getAllCurrencyRates returns rates for all currency pairs", async () => {
+    // Mock API responses for different currency pairs
+    mockedAxios.get.mockResolvedValueOnce({
+      data: [{ close: 1.0576 }]
+    }).mockResolvedValueOnce({
+      data: [{ close: 150.25 }]
+    });
+
+    const rates = await getAllCurrencyRates();
     expect(rates).toBeTruthy();
 
     const eurUsd = rates["EUR / USD"];
-    expect(eurUsd).toBeTruthy();
-    expect(typeof eurUsd).toBe("number");
-    expect(eurUsd).toBeGreaterThan(0);
+    expect(eurUsd).toBe(1.0576);
 
     const usdJpy = rates["USD / JPY"];
-    expect(usdJpy).toBeTruthy();
-    expect(typeof usdJpy).toBe("number");
-    expect(usdJpy).toBeGreaterThan(0);
+    expect(usdJpy).toBe(150.25);
   });
 
-  test("invalid currency pair returns null", async ({ page }) => {
+  test("invalid currency pair returns null", async () => {
+    // Mock API error
+    mockedAxios.get.mockRejectedValueOnce(new Error("Invalid currency"));
+
     // @ts-expect-error Testing invalid input
-    const rate = await fetchCurrencyRate("INVALID", "USD", page);
+    const rate = await fetchCurrencyRate("INVALID", "USD");
     expect(rate).toBeNull();
   });
 });
