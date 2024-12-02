@@ -35,38 +35,37 @@ async function fetchCurrencyRate(
     }
     return null;
   } catch (error) {
-    console.error(
-      `Failed to fetch rate for ${fromCurrency}/${toCurrency}:`,
-      error
-    );
     return null;
   }
 }
 
 async function getAllCurrencyRates(): Promise<CurrencyRates> {
   const rates: CurrencyRates = {};
+  const promises: Promise<void>[] = [];
 
   for (const fromCurrency of COMMON_CURRENCIES) {
     for (const toCurrency of COMMON_CURRENCIES) {
       if (fromCurrency === toCurrency) continue;
 
       const key = `${fromCurrency} / ${toCurrency}`;
-      console.log(`Fetching rate for ${key}...`);
-
-      try {
-        const rate = await fetchCurrencyRate(fromCurrency, toCurrency);
-        if (rate !== null) {
-          rates[key] = rate;
-          console.log(`Successfully fetched rate for ${key}: ${rate}`);
+      const promise = (async () => {
+        try {
+          const rate = await fetchCurrencyRate(fromCurrency, toCurrency);
+          if (rate !== null) {
+            rates[key] = rate;
+          }
+          // Small delay between API calls to avoid rate limiting
+          await new Promise((resolve) => setTimeout(resolve, 100));
+        } catch {
+          // Silently handle errors as they're already logged in fetchCurrencyRate
         }
-
-        // Small delay between API calls to avoid rate limiting
-        await new Promise((resolve) => setTimeout(resolve, 100));
-      } catch (error) {
-        console.error(`Failed to fetch rate for ${key}:`, error);
-      }
+      })();
+      promises.push(promise);
     }
   }
+
+  // Wait for all currency pairs to be processed
+  await Promise.all(promises);
 
   // Save rates to JSON file
   const outputPath = path.join(process.cwd(), "currency-rates.json");
