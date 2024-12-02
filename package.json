@@ -4,6 +4,10 @@
   "description": "Fetches real-time currency conversion rates from OANDA",
   "type": "module",
   "main": "dist/index.js",
+  "private": false,
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "tsc",
     "start": "node dist/index.js",
@@ -16,8 +20,14 @@
     "test:watch": "vitest",
     "coverage": "vitest run --coverage"
   },
-  "keywords": "currency,conversion,exchange-rate,oanda,typescript",
-  "author": "",
+  "keywords": [
+    "currency",
+    "conversion",
+    "exchange-rate",
+    "oanda",
+    "typescript"
+  ],
+  "author": "Andrew Chen Wang",
   "license": "MIT",
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
@@ -33,6 +43,10 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/Andrew-Chen-Wang/currency-conversions.git"
+  },
+  "homepage": "https://github.com/Andrew-Chen-Wang/currency-conversions#readme",
+  "bugs": {
+    "url": "https://github.com/Andrew-Chen-Wang/currency-conversions/issues"
   },
   "lint-staged": {
     "*.{js,ts}": [
