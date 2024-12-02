@@ -8,11 +8,13 @@
     "build": "tsc",
     "start": "node dist/index.js",
     "dev": "ts-node --esm src/index.ts",
-    "test": "playwright test",
+    "test": "vitest run",
     "format": "biome format --write .",
     "lint": "biome lint .",
     "check": "biome check --apply .",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "test:watch": "vitest",
+    "coverage": "vitest run --coverage"
   },
   "keywords": "currency,conversion,exchange-rate,oanda,typescript",
   "author": "",
@@ -21,10 +23,12 @@
     "@biomejs/biome": "^1.9.4",
     "@types/node": "^22.10.1",
     "@types/node-fetch": "^2.6.12",
+    "@vitest/coverage-v8": "^2.1.6",
     "husky": "^9.1.7",
     "lint-staged": "^15.2.10",
     "ts-node": "^10.9.2",
-    "typescript": "^5.7.2"
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.6"
   },
   "repository": {
     "type": "git",
