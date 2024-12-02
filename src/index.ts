@@ -7,7 +7,9 @@ import {
   type CurrencyRates,
 } from "./types.js";
 
-const CONCURRENT_FETCHES = 3;
+const MIN_DELAY_MS = 1000; // 1 second minimum delay between requests
+const MAX_BACKOFF_MS = 3600000; // 1 hour maximum backoff
+const INITIAL_BACKOFF_MS = 1000; // Start with 1 second backoff
 
 function getEndDate(): string {
   return new Date().toISOString().split("T")[0];
@@ -19,14 +21,34 @@ function getStartDate(): string {
   return date.toISOString().split("T")[0];
 }
 
+async function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 export async function fetchCurrencyRate(
   fromCurrency: Currency,
-  toCurrency: Currency
+  toCurrency: Currency,
+  retryCount = 0
 ): Promise<number | null> {
+  const backoffMs = Math.min(
+    INITIAL_BACKOFF_MS * 2 ** retryCount,
+    MAX_BACKOFF_MS
+  );
+
   try {
     const response = await fetch(
       `https://fxds-public-exchange-rates-api.oanda.com/cc-api/currencies?base=${fromCurrency}&quote=${toCurrency}&data_type=chart&start_date=${getStartDate()}&end_date=${getEndDate()}`
     );
+
+    if (response.status === 429 && retryCount < 10) {
+      console.log(
+        `Rate limited for ${fromCurrency}/${toCurrency}, backing off for ${
+          backoffMs / 1000
+        } seconds...`
+      );
+      await sleep(backoffMs);
+      return fetchCurrencyRate(fromCurrency, toCurrency, retryCount + 1);
+    }
 
     if (!response.ok) {
       console.error(
@@ -45,7 +67,10 @@ export async function fetchCurrencyRate(
       return null;
     } catch (parseError) {
       console.error(
-        `JSON parse error for ${fromCurrency}/${toCurrency}: ${text.slice(0, 100)}...`
+        `JSON parse error for ${fromCurrency}/${toCurrency}: ${text.slice(
+          0,
+          100
+        )}...`
       );
       return null;
     }
@@ -60,53 +85,22 @@ export async function fetchCurrencyRate(
 
 export async function getAllCurrencyRates(): Promise<CurrencyRates> {
   const rates: CurrencyRates = {};
-  const queue: Array<[Currency, Currency]> = [];
 
-  // Build queue of currency pairs
   for (const fromCurrency of COMMON_CURRENCIES) {
     for (const toCurrency of COMMON_CURRENCIES) {
       if (fromCurrency === toCurrency) continue;
-      queue.push([fromCurrency, toCurrency]);
-    }
-  }
 
-  // Process queue with concurrent limit
-  const activePromises = new Set<Promise<void>>();
-
-  while (queue.length > 0 || activePromises.size > 0) {
-    // Fill up to concurrent limit
-    while (queue.length > 0 && activePromises.size < CONCURRENT_FETCHES) {
-      const pair = queue.shift();
-      if (!pair) break; // This should never happen due to the length check, but satisfies the linter
-      const [fromCurrency, toCurrency] = pair;
       const key = `${fromCurrency} / ${toCurrency}`;
+      console.log(`Fetching rate for ${key}...`);
 
-      const promise = (async () => {
-        console.log(`Fetching rate for ${key}...`);
-        try {
-          const rate = await fetchCurrencyRate(fromCurrency, toCurrency);
-          if (rate !== null) {
-            rates[key] = rate;
-            console.log(`Successfully fetched rate for ${key}: ${rate}`);
-          }
-        } catch (error) {
-          console.error(`Failed to fetch rate for ${key}:`, error);
-        }
-      })();
+      const rate = await fetchCurrencyRate(fromCurrency, toCurrency);
+      if (rate !== null) {
+        rates[key] = rate;
+        console.log(`Successfully fetched rate for ${key}: ${rate}`);
+      }
 
-      activePromises.add(promise);
-      // Clean up promise from set when done
-      promise.finally(() => {
-        activePromises.delete(promise);
-      });
-    }
-
-    // Wait for at least one promise to complete if we've hit the limit
-    if (
-      activePromises.size >= CONCURRENT_FETCHES ||
-      (queue.length === 0 && activePromises.size > 0)
-    ) {
-      await Promise.race(Array.from(activePromises));
+      // Always wait at least 1 second between requests
+      await sleep(MIN_DELAY_MS);
     }
   }
 
@@ -118,7 +112,7 @@ export async function getAllCurrencyRates(): Promise<CurrencyRates> {
 }
 
 // CLI support
-if (require.main === module) {
+if (import.meta.url === `file://${process.argv[1]}`) {
   getAllCurrencyRates()
     .then(() => console.log("Currency rates fetched and saved successfully"))
     .catch(console.error);
