@@ -7,7 +7,7 @@ import {
   type CurrencyRates,
 } from "./types.js";
 
-const MIN_DELAY_MS = 1000; // 1 second minimum delay between requests
+const MIN_DELAY_MS = 3000; // 3 second minimum delay between requests
 const MAX_BACKOFF_MS = 3600000; // 1 hour maximum backoff
 const INITIAL_BACKOFF_MS = 1000; // Start with 1 second backoff
 
@@ -99,7 +99,7 @@ export async function getAllCurrencyRates(): Promise<CurrencyRates> {
         console.log(`Successfully fetched rate for ${key}: ${rate}`);
       }
 
-      // Always wait at least 1 second between requests
+      // Always wait at least 3 seconds between requests
       await sleep(MIN_DELAY_MS);
     }
   }
