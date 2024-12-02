@@ -27,14 +27,28 @@ export async function fetchCurrencyRate(
     const response = await fetch(
       `https://fxds-public-exchange-rates-api.oanda.com/cc-api/currencies?base=${fromCurrency}&quote=${toCurrency}&data_type=chart&start_date=${getStartDate()}&end_date=${getEndDate()}`
     );
-    const data = await response.json();
 
-    if (data.response && data.response.length > 0) {
-      // Get the latest rate from the response array
-      const latestRate = data.response[data.response.length - 1];
-      return Number.parseFloat(latestRate.average_bid);
+    if (!response.ok) {
+      console.error(
+        `HTTP error for ${fromCurrency}/${toCurrency}: ${response.status}`
+      );
+      return null;
     }
-    return null;
+
+    const text = await response.text();
+    try {
+      const data = JSON.parse(text);
+      if (data.response && data.response.length > 0) {
+        const latestRate = data.response[data.response.length - 1];
+        return Number.parseFloat(latestRate.average_bid);
+      }
+      return null;
+    } catch (parseError) {
+      console.error(
+        `JSON parse error for ${fromCurrency}/${toCurrency}: ${text.slice(0, 100)}...`
+      );
+      return null;
+    }
   } catch (error) {
     console.error(
       `Error fetching rate for ${fromCurrency}/${toCurrency}:`,
