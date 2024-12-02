@@ -1,6 +1,5 @@
 import { writeFileSync } from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 import axios from "axios";
 import {
   COMMON_CURRENCIES,
@@ -76,9 +75,5 @@ export async function getAllCurrencyRates(): Promise<CurrencyRates> {
   return rates;
 }
 
-// CLI support
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  getAllCurrencyRates()
-    .then(() => console.log("Currency rates fetched and saved successfully"))
-    .catch(console.error);
-}
+// Export the main functionality
+export { getAllCurrencyRates, fetchCurrencyRate };
