@@ -21,8 +21,8 @@ jobs:
         run: npm ci
       - name: Run Lint and Format Check
         run: |
-          npm run biome check .
-          npm run biome format . --check
+          npm run check
+          npm run format
 
   test:
     runs-on: ubuntu-latest

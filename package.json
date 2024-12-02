@@ -15,7 +15,7 @@
     "test": "vitest run",
     "format": "biome format --write .",
     "lint": "biome lint .",
-    "check": "biome check --apply .",
+    "check": "biome check --write .",
     "prepare": "husky install",
     "test:watch": "vitest",
     "coverage": "vitest run --coverage"
@@ -49,10 +49,7 @@
     "url": "https://github.com/Andrew-Chen-Wang/currency-conversions/issues"
   },
   "lint-staged": {
-    "*.{js,ts}": [
-      "biome check --apply",
-      "biome format --write"
-    ]
+    "*.{js,ts}": ["biome check --write", "biome format --write"]
   },
   "dependencies": {
     "node-fetch": "^3.3.2"
