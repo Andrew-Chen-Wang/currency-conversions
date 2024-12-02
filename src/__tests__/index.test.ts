@@ -1,9 +1,9 @@
-import { jest } from '@jest/globals';
-import axios from 'axios';
+import { jest } from "@jest/globals";
+import axios from "axios";
 import { fetchCurrencyRate, getAllCurrencyRates } from "../index.js";
 
 // Mock axios
-jest.mock('axios');
+jest.mock("axios");
 const mockedAxios = axios as jest.Mocked<typeof axios>;
 
 describe("Currency Conversion Tests", () => {
@@ -14,9 +14,7 @@ describe("Currency Conversion Tests", () => {
   test("fetchCurrencyRate returns a valid number for EUR to USD", async () => {
     // Mock successful API response
     mockedAxios.get.mockResolvedValueOnce({
-      data: [
-        { close: 1.0576 }
-      ]
+      data: [{ close: 1.0576 }],
     });
 
     const rate = await fetchCurrencyRate("EUR", "USD");
@@ -31,19 +29,21 @@ describe("Currency Conversion Tests", () => {
         params: expect.objectContaining({
           base: "EUR",
           quote: "USD",
-          data_type: "chart"
-        })
+          data_type: "chart",
+        }),
       })
     );
   });
 
   test("getAllCurrencyRates returns rates for all currency pairs", async () => {
     // Mock API responses for different currency pairs
-    mockedAxios.get.mockResolvedValueOnce({
-      data: [{ close: 1.0576 }]
-    }).mockResolvedValueOnce({
-      data: [{ close: 150.25 }]
-    });
+    mockedAxios.get
+      .mockResolvedValueOnce({
+        data: [{ close: 1.0576 }],
+      })
+      .mockResolvedValueOnce({
+        data: [{ close: 150.25 }],
+      });
 
     const rates = await getAllCurrencyRates();
     expect(rates).toBeTruthy();
