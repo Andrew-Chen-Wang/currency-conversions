@@ -6,8 +6,6 @@ A Node.js package that fetches real-time currency conversion rates from OANDA.
 
 ```bash
 npm install currency-converted-data-fetcher
-# or
-pnpm add currency-converted-data-fetcher
 ```
 
 ## Usage
@@ -36,12 +34,11 @@ console.log(rate); // Get USD to EUR rate
 
 ### Prerequisites
 - [Node.js](https://nodejs.org/) (version 20 or higher)
-- [pnpm](https://pnpm.io/) package manager
 
 ### Install Dependencies
 ```bash
 # Install project dependencies
-pnpm install
+npm install
 ```
 
 ### Local Development Tools
@@ -52,14 +49,11 @@ The project uses several tools to ensure code quality:
 [Biome](https://biomejs.dev/) is used for linting and formatting:
 
 ```bash
-# Install Biome
-pnpm biome install
-
 # Run linter
-pnpm lint
+npm run lint
 
 # Run formatter
-pnpm format
+npm run format
 ```
 
 #### Husky and Lint-Staged
@@ -67,7 +61,7 @@ pnpm format
 
 ```bash
 # Set up Husky
-pnpm run prepare
+npm run prepare
 
 # This will:
 # 1. Install Husky hooks
