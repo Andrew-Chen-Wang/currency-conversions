@@ -31,7 +31,6 @@
     "url": "https://github.com/Andrew-Chen-Wang/currency-conversions.git"
   },
   "dependencies": {
-    "patchright": "link:patchright",
     "playwright-extra": "^4.3.6",
     "puppeteer-extra-plugin-stealth": "^2.11.2"
   },
