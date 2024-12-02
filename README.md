@@ -6,8 +6,6 @@ A Node.js package that fetches real-time currency conversion rates from OANDA.
 
 ```bash
 npm install currency-converted-data-fetcher
-# or
-pnpm add currency-converted-data-fetcher
 ```
 
 ## Usage
@@ -31,6 +29,47 @@ console.log(rate); // Get USD to EUR rate
 - Provides TypeScript types
 - Saves results to JSON file
 - Ignores cryptocurrencies
+
+## Development Setup
+
+### Prerequisites
+- [Node.js](https://nodejs.org/) (version 20 or higher)
+
+### Install Dependencies
+```bash
+# Install project dependencies
+npm install
+```
+
+### Local Development Tools
+
+The project uses several tools to ensure code quality:
+
+#### Biome
+[Biome](https://biomejs.dev/) is used for linting and formatting:
+
+```bash
+# Run linter
+npm run lint
+
+# Run formatter
+npm run format
+```
+
+#### Husky and Lint-Staged
+[Husky](https://typicode.github.io/husky/) is used for Git hooks, and [lint-staged](https://github.com/okonet/lint-staged) runs linters on staged files:
+
+```bash
+# Set up Husky
+npm run prepare
+
+# This will:
+# 1. Install Husky hooks
+# 2. Configure pre-commit hook to run linters and formatters
+# 3. Set up lint-staged to check only staged files
+```
+
+The pre-commit hook will automatically run linting and formatting on your staged files before each commit. If there are any issues, the commit will be blocked until they are fixed.
 
 ## License
 
