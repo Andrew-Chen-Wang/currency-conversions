@@ -60,17 +60,29 @@ export async function fetchCurrencyRate(
 
 export async function getAllCurrencyRates(): Promise<CurrencyRates> {
   const rates: CurrencyRates = {};
-  const pendingFetches: Promise<void>[] = [];
-  const activeFetches = new Set<Promise<void>>();
+  const queue: Array<[Currency, Currency]> = [];
 
+  // Build queue of currency pairs
   for (const fromCurrency of COMMON_CURRENCIES) {
     for (const toCurrency of COMMON_CURRENCIES) {
       if (fromCurrency === toCurrency) continue;
+      queue.push([fromCurrency, toCurrency]);
+    }
+  }
 
-      const fetchOperation = async () => {
-        const key = `${fromCurrency} / ${toCurrency}`;
+  // Process queue with concurrent limit
+  const activePromises = new Set<Promise<void>>();
+
+  while (queue.length > 0 || activePromises.size > 0) {
+    // Fill up to concurrent limit
+    while (queue.length > 0 && activePromises.size < CONCURRENT_FETCHES) {
+      const pair = queue.shift();
+      if (!pair) break; // This should never happen due to the length check, but satisfies the linter
+      const [fromCurrency, toCurrency] = pair;
+      const key = `${fromCurrency} / ${toCurrency}`;
+
+      const promise = (async () => {
         console.log(`Fetching rate for ${key}...`);
-
         try {
           const rate = await fetchCurrencyRate(fromCurrency, toCurrency);
           if (rate !== null) {
@@ -80,30 +92,23 @@ export async function getAllCurrencyRates(): Promise<CurrencyRates> {
         } catch (error) {
           console.error(`Failed to fetch rate for ${key}:`, error);
         }
-      };
+      })();
 
-      const fetchPromise = fetchOperation();
-      const wrappedPromise = async () => {
-        try {
-          await fetchPromise;
-        } finally {
-          activeFetches.delete(wrappedPromise);
-        }
-      };
-      const promise = wrappedPromise();
+      activePromises.add(promise);
+      // Clean up promise from set when done
+      promise.finally(() => {
+        activePromises.delete(promise);
+      });
+    }
 
-      pendingFetches.push(promise);
-      activeFetches.add(promise);
-
-      // Wait if we've reached the concurrent fetch limit
-      if (activeFetches.size >= CONCURRENT_FETCHES) {
-        await Promise.race(Array.from(activeFetches));
-      }
+    // Wait for at least one promise to complete if we've hit the limit
+    if (
+      activePromises.size >= CONCURRENT_FETCHES ||
+      (queue.length === 0 && activePromises.size > 0)
+    ) {
+      await Promise.race(Array.from(activePromises));
     }
   }
-
-  // Wait for all remaining fetches to complete
-  await Promise.all(pendingFetches);
 
   // Save rates to JSON file
   const outputPath = path.join(process.cwd(), "currency-rates.json");
